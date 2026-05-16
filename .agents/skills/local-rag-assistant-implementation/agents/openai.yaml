@@ -1,0 +1,3 @@
+display_name: Local RAG Assistant Implementation
+short_description: Implementation rules for the local RAG assistant project.
+default_prompt: Use this skill when implementing, reviewing, or planning work for the local RAG assistant.
