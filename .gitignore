@@ -9,11 +9,6 @@ build/
 
 # Project data (generated at runtime)
 data/
-docs/*
-!docs/rules/
-!docs/rules/*
-!docs/plans/
-!docs/plans/*
 index_manifest.json
 index_manifest_*.json
 drafts/
