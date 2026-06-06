@@ -1,7 +1,7 @@
 # Paths después del Learning Roadmap
 
 > Documento de referencia para decidir qué hacer después de completar
-> los 17 módulos del `LEARNING_ROADMAP.md`.
+> las 19 sesiones del `LEARNING_ROADMAP.md`.
 >
 > **Contexto**: FE developer (React/TS) → quiere ser más fullstack con foco en AI.
 > Trabaja en un producto existente (React/TS FE + SQL/PHP BE) que ya integra AI.
@@ -25,7 +25,7 @@
 
 ## Lo que tendrás después del Roadmap
 
-Al completar los 17 módulos (~3-4 semanas, 45-60 min/día) tendrás:
+Al completar las 19 sesiones (~3-4 semanas, 45-60 min/día) tendrás:
 
 1. **Un RAG funcional en Python** con CLI: ingest, ask, search, eval, classify
 2. **Comprensión profunda** de embeddings, vector stores, chunking, retrieval, generación
@@ -182,7 +182,7 @@ El Path B (AI Engineering profundo) y Path C (fullstack completo) los puedes exp
 
 ## Checklist de preparación para después del Roadmap
 
-Cuando termines los 17 módulos, antes de elegir un path, responde:
+Cuando termines las 19 sesiones, antes de elegir un path, responde:
 
 - [ ] ¿Qué me ha gustado más? (embeddings, retrieval, generación, clasificación, evaluación...)
 - [ ] ¿Qué me ha costado más? (Python, Chroma, Ollama, chunking, prompts...)

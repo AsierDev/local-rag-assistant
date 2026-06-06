@@ -12,14 +12,16 @@
 
 ```
 M0: Fundamentos 🧠           (1 sesión)
+M0.5: Modelos en local 🧪      (1 sesión — lectura + referencia)
 M1: Esqueleto del proyecto 🏗️           (3 sesiones)
 M2: Documentos y Loaders 📄              (3 sesiones)
 M3: Embeddings + Vector Store 🔍         (3 sesiones)
 M4: Generación + RAG completo 🤖         (3 sesiones)
 M5: Evaluación + Structured Output ✅    (3 sesiones)  ← CLAVE para tu caso de clasificación
+M5.5: Agentes y tool use 🤖              (1 sesión — lectura + comprensión)
 M6: Salto a tu producto 🚀              (1 sesión)
                                    ——————————
-                                   ~17 sesiones
+                                   ~19 sesiones
 ```
 
 Cada sesión = 45-60 min. Avanzas a tu ritmo. Cada sesión deja algo funcionando.
@@ -93,6 +95,76 @@ ollama run llama3.2:3b-instruct-q4_K_M
 
 ---
 
+## 🧪 Módulo 0.5: Modelos en local — cuantización y selección (1 sesión)
+
+> **Formato especial**: Esta sesión es de **lectura y comprensión**. No implementas código,
+> pero ganas la capacidad de elegir modelos con criterio. Es una referencia que consultarás
+> cada vez que quieras probar un modelo nuevo.
+
+### Sesión 0.5.1: Cuantización, fichas técnicas y selección de modelos
+
+#### Leer / Entender
+
+Lee el documento completo: **[`docs/MODEL_SELECTION_GUIDE.md`](MODEL_SELECTION_GUIDE.md)**
+
+Los 4 bloques que debes dominar:
+
+| Bloque | Qué aprenderás | Por qué importa |
+|--------|---------------|-----------------|
+| **1. Cuantización** | Qué es, métodos (GGUF, GPTQ, AWQ), niveles (Q2→Q8), trade-offs calidad/tamaño | Te permite saber por qué un modelo ocupa 4 GB y otro 14 GB, y cuál elegir |
+| **2. Leer fichas técnicas** | Parámetros, context window, dimensiones de embedding, formato, licencia, idioma | Para que cuando veas un modelo en Ollama o Hugging Face, sepas qué mirar |
+| **3. Elegir modelo** | Hardware disponible + tipo de tarea + restricciones del proyecto | La decisión práctica: "¿qué modelo uso para mi caso?" |
+| **4. Ecosistema** | Dónde encontrar modelos (Ollama Library, Hugging Face), leaderboards, comparativas | Para que sepas dónde buscar cuando necesites un modelo nuevo |
+
+#### Practicar
+
+```bash
+# Ver qué modelos tienes instalados y su tamaño
+ollama list
+
+# Ver detalles de un modelo concreto (parámetros, tamaño, template)
+ollama show llama3.2:3b-instruct-q4_K_M
+
+# Probar dos modelos distintos con la misma pregunta
+ollama run llama3.2:3b-instruct-q4_K_M
+# Pregunta: "Explica qué es RAG en 3 frases"
+# /bye
+
+ollama run qwen2.5:7b-instruct-q4_K_M
+# Misma pregunta: "Explica qué es RAG en 3 frases"
+# /bye
+
+# Observa: diferencia de velocidad, calidad de respuesta, fluidez
+```
+
+#### Ejercicio mental
+
+Para cada uno de estos escenarios, decide qué modelo usarías y por qué:
+
+1. **Clasificador de documentos en español** → Hardware: 16 GB RAM → ¿?
+2. **Chatbot de atención al cliente en inglés** → Hardware: 32 GB RAM → ¿?
+3. **Embeddings para búsqueda semántica multilingüe** → ¿?
+4. **Generación de código** → Hardware: 16 GB RAM → ¿?
+
+(Las respuestas están en la guía, sección 3. Busca solo después de pensar tu respuesta.)
+
+#### Checkpoint
+- Puedes explicar qué significa `q4_K_M` en el nombre de un modelo
+- Sabes cuánta RAM necesitas para un modelo de 7B en Q4
+- Puedes distinguir un modelo de embedding de uno de generación
+- Sabes dónde buscar modelos nuevos (Ollama Library + Hugging Face)
+- Has leído la sección de "errores comunes" y la checklist de selección
+
+**Entender para tu producto**: Cuando en el Módulo 3 elijas el modelo de embeddings, o en el Módulo 4 el modelo de generación, no estarás eligiendo a ciegas. Sabrás por qué Q4_K_M, por qué 768 dimensiones, y qué alternativas tienes si necesitas más calidad o menos RAM.
+
+---
+
+### 📝 Quiz del Módulo 0
+
+> **Para el agente copiloto**: Presenta el **Quiz M0** de `docs/QUIZZES.md` (3 preguntas sobre embeddings, vector stores y RAG).
+
+---
+
 ## 🏗️ Módulo 1: Esqueleto del proyecto (3 sesiones)
 
 ### Sesión 1.1: Scaffold + pyproject.toml
@@ -146,6 +218,8 @@ rag = "rag_assistant.cli:app"
 [tool.setuptools.packages.find]
 where = ["src"]
 ```
+
+> 🔁 **Si vienes de TypeScript**: `pyproject.toml` es tu `package.json`. `pip install -e .` es tu `npm link` o `yarn link`. Las dependencias se declaran en `dependencies = [...]` como en `package.json`. El `[project.scripts]` es tu `"bin"` en package.json.
 
 Crear `src/rag_assistant/__init__.py` (vacio).
 
@@ -249,6 +323,9 @@ Conceptos:
 Referencia: Unidad 1.1.f, Sección 6.2 (Diagnostic CLI Commands).
 
 **Para tu producto**: Typer es ideal para herramientas internas, devops, y pipelines. Mismo patrón que FastAPI (mismo autor).
+
+> 🔁 **Si vienes de TypeScript**: Typer es como `commander` o `cac` en Node, pero con tipos automáticos. Los `@app.command()` decorados son equivalentes a `.command('ingest').action(...)`. Mismo creador que FastAPI (el "Express de Python").
+
 
 #### Implementar
 
@@ -357,7 +434,7 @@ class Document(BaseModel):
 
 ```python
 from pathlib import Path
-from config import get_settings
+from rag_assistant.config import get_settings
 
 def discover_supported_files() -> list[Path]:
     settings = get_settings()
@@ -596,6 +673,12 @@ notes: Queda mejor reposando 5 minutos.
 
 ---
 
+### 📝 Quiz del Módulo 2
+
+> **Para el agente copiloto**: Presenta el **Quiz M2** de `docs/QUIZZES.md` (3 preguntas sobre loader-first architecture, chunking y structured loader).
+
+---
+
 ## 🔍 Módulo 3: Embeddings + Vector Store (3 sesiones)
 
 ### Sesión 3.1: Interfaces del sistema
@@ -610,6 +693,8 @@ Conceptos:
 **Para tu producto**: Esto es clave. Tu producto podría empezar con Ollama local y migrar a OpenAI o Claude sin reescribir nada. Solo cambias el adapter.
 
 Referencia: Unidad 1.3.a.
+
+> 🔁 **Si vienes de TypeScript**: Los `Protocol` de Python equivalen a tus `interface` de TypeScript. `class Embedder(Protocol): def embed_documents(...): ...` es como `interface Embedder { embedDocuments(texts: string[]): number[][] }`. El adapter pattern aquí es exactamente el mismo que usas en TS para desacoplar implementaciones.
 
 #### Implementar
 
@@ -910,6 +995,24 @@ def ingest(
 
 ---
 
+### 🔨 Break it exercises del Módulo 3
+
+> **Para el agente copiloto**: Presenta los **Break it 3.2** y **Break it 3.3** de `docs/QUIZZES.md`. Son 4 experimentos donde el usuario rompe intencionalmente el código para entender cómo funcionan los parámetros.
+
+---
+
+### 🎯 Decision point 3.3: Estrategia de chunking
+
+> **Para el agente copiloto**: Presenta el **Decision point 3.3** de `docs/QUIZZES.md`. Escenario: documento legal de 50 páginas con secciones desiguales. El usuario debe elegir entre 3 estrategias de chunking y justificar su elección.
+
+---
+
+### 📝 Quiz del Módulo 3
+
+> **Para el agente copiloto**: Presenta el **Quiz M3** de `docs/QUIZZES.md` (3 preguntas sobre task prefixes, adapter pattern e incremental indexing).
+
+---
+
 ## 🤖 Módulo 4: Generación + RAG completo (3 sesiones)
 
 ### Sesión 4.1: Generator adapter + Query chain
@@ -1107,6 +1210,24 @@ Actualizar `cli.py` con los comandos diagnósticos. Ver el plan para los mensaje
 
 ---
 
+### 🔨 Break it 4.1: Query chain
+
+> **Para el agente copiloto**: Presenta el **Break it 4.1** de `docs/QUIZZES.md`. Son 2 experimentos: sin system prompt y con temperatura alta. El usuario observa cómo cambian las respuestas.
+
+---
+
+### 🎯 Decision point 4.1: System prompt para chatbot legal
+
+> **Para el agente copiloto**: Presenta el **Decision point 4.1** de `docs/QUIZZES.md`. Escenario: chatbot para abogados. El usuario debe elegir entre 3 opciones de system prompt (estricto, permissivo, balanceado) y justificar su elección.
+
+---
+
+### 📝 Quiz del Módulo 4
+
+> **Para el agente copiloto**: Presenta el **Quiz M4** de `docs/QUIZZES.md` (3 preguntas sobre system prompt, streaming y diagnóstico first).
+
+---
+
 ## ✅ Módulo 5: Evaluación + Structured Output (3 sesiones)
 
 ### Sesión 5.1: Evaluation set + rag eval
@@ -1215,6 +1336,9 @@ class ClassificationResult(BaseModel):
     reasoning: str
     needs_human_review: bool
 
+
+> 🔁 **Si vienes de TypeScript**: `class ClassificationResult(BaseModel)` es como una schema de `zod`: `z.object({ category: z.string(), confidence: z.number(), ... })`. Pydantic valida y parsea automáticamente, igual que `zod.parse()`. El `model_dump()` es tu `zod.parse()` serializado.
+
 CLASSIFY_SYSTEM_PROMPT = """Eres un clasificador experto. Debes clasificar el documento proporcionado en UNA de las siguientes categorías:
 - A: Documento técnico
 - B: Documento legal
@@ -1292,6 +1416,97 @@ def classify_batch(documents: list[dict], consistency_runs: int = 3) -> list[dic
 
 ---
 
+### 🎯 Decision point 5.2: Clasificación con muchas categorías
+
+> **Para el agente copiloto**: Presenta el **Decision point 5.2** de `docs/QUIZZES.md`. Escenario: clasificar documentos en 15 categorías. El usuario debe elegir entre 3 opciones (single prompt, two-step, few-shot) y justificar su elección.
+
+---
+
+### 📝 Quiz del Módulo 5
+
+> **Para el agente copiloto**: Presenta el **Quiz M5** de `docs/QUIZZES.md` (3 preguntas sobre evaluation set, JSON mode y consistency testing).
+
+---
+
+## 🤖 Módulo 5.5: Agentes y tool use — fundamentos (1 sesión)
+
+> **Formato especial**: Esta sesión es de **lectura y comprensión**. No implementas código,
+> pero adquieres el mapa mental de cómo funcionan los agentes, tool use, y orquestación
+> de flujos multi-paso. Conceptos que aplicarás cuando tu producto evolucione más allá
+> de RAG básico.
+
+### Sesión 5.5.1: De RAG a agentes
+
+#### Leer / Entender
+
+| Concepto | Qué es | Por qué importa |
+|----------|--------|-----------------|
+| **Chain vs Agent** | Chain = secuencia fija de pasos. Agent = el modelo decide qué paso tomar basado en el estado actual. | Hasta ahora has construido chains (ingest → embed → search → generate). Un agente podría decidir *si* buscar más contexto, *si* preguntar al usuario, o *si* llamar a una API externa. |
+| **Tool use / Function calling** | El LLM devuelve el nombre de una función y sus argumentos en vez de texto libre. Tu backend ejecuta la función y devuelve el resultado al modelo. | Tu pipeline de clasificación (Sesión 5.2) ya es una forma de tool use: el modelo "llama" a la función `clasificar(categoria, confianza)`. La diferencia es que un agente puede encadenar varias tools. |
+| **Reasoning + Act** | El modelo piensa (reasoning), decide una acción (act), observa el resultado (observation), y repite. | Es el bucle básico de cualquier agente. LangGraph lo implementa como un grafo de estados. |
+| **Memory** | El agente necesita recordar pasos anteriores. Context window del LLM vs memoria externa (bases de datos vectoriales, SQLite). | Tu RAG ya tiene memoria externa (Chroma). Un agente añade memoria de *conversación* y memoria de *pasos ejecutados*. |
+| **Orquestación** | Frameworks que gestionan el grafo de estados del agente: LangGraph, CrewAI, AutoGen. | Cuando tu flujo tenga más de 2-3 pasos, necesitas orquestación. LangGraph es el estándar en Python. |
+| **Human-in-the-loop** | El agente pide confirmación antes de ejecutar acciones críticas (enviar un email, modificar datos). | Es el patrón de seguridad para agentes en producción. Tu pipeline de clasificación ya lo usa con `needs_human_review`. |
+| **Planning** | El modelo descompone un objetivo complejo en sub-tareas. "Analiza este lote de 20 documentos" → planifica: clasificar cada uno, agrupar por categoría, generar resumen ejecutivo. | Donde RAG responde preguntas, los agentes ejecutan *workflows complejos*. |
+
+**Para tu producto**:
+
+| Escenario actual | Con agente |
+|-----------------|------------|
+| Usuario pregunta → RAG busca → LLM responde | Usuario pide "analiza este reporte" → agente clasifica → busca documentos relacionados → genera resumen → lo archiva |
+| Clasificación individual de documentos | Agente recibe lote, clasifica cada uno, agrupa por categoría, detecta outliers, deriva dudosos a humano |
+| Chatbot con contexto RAG | Agente con tool use: puede consultar la DB de clientes, buscar en Chroma, llamar a una API de patentes, y componer la respuesta |
+
+Recursos externos (lectura recomendada):
+- [Ollama function calling docs](https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode-function-calling) — cómo Ollama soporta tools
+- [LangGraph conceptual guide](https://langchain-ai.github.io/langgraph/concepts/) — grafos de agentes
+- [Anthropic: Building effective agents](https://docs.anthropic.com/en/docs/build-with-claude/agentic) — guía práctica de patrones de agentes
+
+#### Practicar (sin código)
+
+1. **Identifica chains en tu roadmap**: Repasa mentalmente las sesiones 3-5. El pipeline `ingest → search → ask → classify` es una chain. ¿En qué punto un agente tomaría una decisión mejor que una chain fija?
+
+2. **Diseña un agente para tu caso**: Coge el caso de clasificación de reportes (Sesión 5.3). Dibuja un diagrama de flujo donde un agente:
+   - Recibe un lote de documentos
+   - Clasifica cada uno
+   - Si confianza < 0.7, busca documentos similares en Chroma para reforzar contexto
+   - Re-clasifica con el nuevo contexto
+   - Si sigue dudoso, deriva a humano
+   - Genera un reporte de resumen
+
+3. **Prueba function calling en Ollama** (opcional, si quieres verlo en acción):
+   ```bash
+   curl http://localhost:11434/api/chat -d '{
+     "model": "llama3.2:3b-instruct-q4_K_M",
+     "messages": [{"role": "user", "content": "¿Qué tiempo hace en Madrid?"}],
+     "tools": [{
+       "type": "function",
+       "function": {
+         "name": "get_weather",
+         "description": "Obtener el tiempo de una ciudad",
+         "parameters": {
+           "type": "object",
+           "properties": {
+             "city": {"type": "string"}
+           },
+           "required": ["city"]
+         }
+       }
+     }]
+   }'
+   ```
+   Observa cómo el modelo devuelve una llamada a `get_weather` en vez de inventarse el tiempo.
+
+#### Checkpoint
+- Puedes explicar la diferencia entre una chain y un agente con un ejemplo de tu producto
+- Sabes qué es tool use y cómo se diferencia de structured output
+- Has identificado al menos un workflow en tu producto donde un agente aportaría valor
+- Sabes qué frameworks existen para orquestar agentes (LangGraph, CrewAI, AutoGen)
+
+**Entender para tu producto**: El Módulo 6 conecta todo esto. Cuando diseñes la integración con tu frontend, podrás decidir si necesitas un agente completo o te basta con chains bien estructuradas. La mayoría de los productos empiezan con chains y evolucionan a agentes cuando los flujos se vuelven complejos.
+
+---
+
 ## 🚀 Módulo 6: Salto a tu producto (1 sesión)
 
 ### Sesión 6.1: De CLI a backend de producto
@@ -1309,6 +1524,7 @@ Conceptos para diseñar la integración en tu producto:
 | **Cola de procesamiento** | Para clasificación en lote, usa un task queue (Celery, RQ, o simplemente background tasks). |
 | **Supervisión humana** | Los resultados con `needs_review=True` van a una cola separada. Un humano revisa desde tu UI y confirma o corrige. |
 | **Multi-cliente** | Cada cliente tiene su propia colección Chroma (`cliente_XX_docs`). La configuración (modelo, prompt) se carga por cliente. |
+| **Agentes y tool use** | El backend expone tools (clasificar, buscar, resumir) que un agente puede llamar. La UI muestra el razonamiento paso a paso. El orquestador (LangGraph, o código propio) gestiona el grafo de estados. |
 | **Logging y monitoreo** | Cada consulta se loguea: pregunta, respuesta, fuentes, latencia, modelo. Esto permite detectar degradación. |
 | **Modelos: local vs cloud** | El adapter pattern permite cambiar de Ollama local a OpenAI/Claude sin tocar el dominio. La decisión depende de latency, coste, y privacidad de los datos. |
 
@@ -1349,6 +1565,9 @@ Este proyecto te ha dado:
 Módulo 0: Fundamentos
   [ ] 0.1  Conceptos esenciales + Ollama funcionando
 
+Módulo 0.5: Modelos en local
+  [ ] 0.5.1 Lectura de MODEL_SELECTION_GUIDE.md + ejercicios prácticos
+
 Módulo 1: Esqueleto
   [ ] 1.1  pyproject.toml + estructura + pip install -e .
   [ ] 1.2  Config (pydantic-settings) + excepciones
@@ -1374,6 +1593,9 @@ Módulo 5: Evaluación + Structured Output
   [ ] 5.2  JSON mode + ClassificationResult
   [ ] 5.3  Batch classification + consistencia
 
+Módulo 5.5: Agentes y tool use
+  [ ] 5.5.1 De RAG a agentes (lectura + ejercicios)
+
 Módulo 6: Producto
   [ ] 6.1  Diseño de integración con tu producto
 ```
@@ -1385,6 +1607,7 @@ Módulo 6: Producto
 | Sesión | Referencia en IMPLEMENTATION_PLAN.md |
 |--------|--------------------------------------|
 | 0.1 | Secciones 1.1-1.4 |
+| 0.5.1 | `docs/MODEL_SELECTION_GUIDE.md` (documento independiente) |
 | 1.1 | Milestone 1.1 (1.1.a, 1.1.b, 1.1.c) |
 | 1.2 | Milestone 1.1 (1.1.d, 1.1.e), Sección 1.4 |
 | 1.3 | Milestone 1.1 (1.1.f), Sección 6.2 |
@@ -1400,6 +1623,7 @@ Módulo 6: Producto
 | 5.1 | Sección 6.1, unidades 1.E.a, 1.E.b |
 | 5.2 | (Extensión propia — no está en el plan original) |
 | 5.3 | (Extensión propia) |
+| 5.5.1 | (Lectura externa) — [Ollama function calling](https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode-function-calling), [LangGraph](https://langchain-ai.github.io/langgraph/concepts/), [Anthropic agents](https://docs.anthropic.com/en/docs/build-with-claude/agentic) |
 | 6.1 | (Diseño de integración) |
 
 ---
